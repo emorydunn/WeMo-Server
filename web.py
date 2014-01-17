@@ -16,6 +16,10 @@ def on_switch(switch):
     print "Switch found!", switch.name
     pass
 
+
+#status_html = "<head><title>Switch Status</title></head><h2>Switches from alias list:</h2>"
+
+
 #This class will handles any incoming request from
 #the browser 
 class myHandler(BaseHTTPRequestHandler):
@@ -44,6 +48,9 @@ class myHandler(BaseHTTPRequestHandler):
                 sendReply = True
             if self.path.endswith(".jpg"):
                 mimetype='image/jpg'
+                sendReply = True
+            if self.path.endswith(".png"):
+                mimetype='image/png'
                 sendReply = True
             if self.path.endswith(".gif"):
                 mimetype='image/gif'
@@ -86,14 +93,20 @@ class myHandler(BaseHTTPRequestHandler):
                             if switch.get_state() == 0:
                                 print ' -'+self.name,'is off.'
                                 self.stateH = 'off'
+                                self.wfile.write("<head><title>Switch Status</title></head>")
+                                #self.wfile.write("<head><title>"+self.name+": " +self.stateH+ "</title></head>")
                                 self.wfile.write(self.name+ " is currently " +self.stateH+ ". <br>")
                             else:
                         		#switch.get_state() == 1:
                                 print ' -'+self.name,'is on.'
                                 self.stateH = 'on'
+                                self.wfile.write("<head><title>Switch Status</title></head>")
+                                #self.wfile.write("<head><title>"+self.name+": " +self.stateH+ "</title></head>")
                                 self.wfile.write(self.name+ " is currently " +self.stateH+ ". <br> ")
                         except: 
                             print (' -'+self.name+ " doesn't exist.")
+                            self.wfile.write("<head><title>Switch Status</title></head>")
+                            #self.wfile.write("<head><title>"+self.name+": missing </title></head>")
                             self.wfile.write(self.name+ " doesn't exist.<br>")
                             pass
             
@@ -107,10 +120,17 @@ class myHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 try:
                     self.wfile.write(self.name+ " is currently " +self.stateH+ ". ")
-                except:
+                except: #The Status Board
                     if self.path == '/status.html':
+                       
+                        status_html = open('status.html', 'r')
+                        content = status_html.read()
+                        print content
+                        self.wfile.write(content)
+                        
                         print ("Switches from alias list:")
-                        self.wfile.write("<h2>Switches from alias list:</h2>")
+                        '''self.wfile.write("<head><title>Switch Status</title></head>")
+                        self.wfile.write("<h2>Switches from alias list:</h2>")'''
                         
                         for key in wemo:
                             self.name = wemo.get(key, None)
@@ -121,15 +141,15 @@ class myHandler(BaseHTTPRequestHandler):
                                 if switch.get_state() == 0:
                                     print ' -'+self.name,'is off.'
                                     self.stateH = 'off'
-                                    self.wfile.write(self.name+ " is currently " +self.stateH+ ". <br>")
+                                    self.wfile.write("<div id=status>" +self.name+ " is currently " +self.stateH+ ". <img src='img/forward.png'></div> <br>")
                                 else:
                             		#switch.get_state() == 1:
                                     print ' -'+self.name,'is on.'
                                     self.stateH = 'on'
-                                    self.wfile.write(self.name+ " is currently " +self.stateH+ ". <br> ")
+                                    self.wfile.write("<div id=status>" +self.name+ " is currently " +self.stateH+ ". <img src='img/forward.png'></div> <br>")
                             except:
                                 print (' -'+self.name+ " doesn't exist.")
-                                self.wfile.write(wemo[key]+ " doesn't exist.<br>")
+                                self.wfile.write("<div id=status>" +wemo[key]+ " doesn't exist.<br></div>")
                     else:
                         f = open(curdir + sep + self.path) 
                         self.wfile.write(f.read())
