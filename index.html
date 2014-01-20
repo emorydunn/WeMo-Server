@@ -1,12 +1,15 @@
 <html>
 <head>
-	<title>WeMo</title>
+	<title>WeMo Web Auth</title>
 </head>
 
 <body>
-	There's nothing here but us chickens. 
-    
-    And an image: <img src='img/forward.png'>
+Input a YubiKey OTP to authenticate against the server.  
+    <form name="login" action=/status method=post>
+    OTP: <input type="text" name="password">
+    <input type="submit" value="send">
+    </form>
 </body>
+
 
 </html>
