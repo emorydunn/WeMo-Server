@@ -1,14 +1,24 @@
 <html>
 <head>
 	<title>WeMo Web Auth</title>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
+
+<div id="title">
+	<h2>Login</h2>
+</div>
+
+<div id="status">
 Input a YubiKey OTP to authenticate against the server.  
     <form name="login" action=/status method=post>
     OTP: <input type="text" name="password">
     <input type="submit" value="send">
     </form>
+    
+</div>
 </body>
 
 

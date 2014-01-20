@@ -1,4 +1,4 @@
-#Version: 0.6 BETA 2
+#Version: 0.6 BETA 3
 #Author: Emory Dunn
 
 # TODO Set cookie after accepting yubikey. Set a timer instead. 
@@ -169,6 +169,7 @@ class myHandler(BaseHTTPRequestHandler):
                         #print content
                         self.wfile.write(page)
                 
+                        self.wfile.write("<div id='title'><h2>Switches:</h2></div>")
                         self.wfile.write("<div id=status>\n")
                         self.wfile.write("<table>\n")
                 
@@ -232,6 +233,7 @@ class myHandler(BaseHTTPRequestHandler):
     #Handler for the POST requests
     def do_POST(self):
             if self.path == '/status':
+                bypass = False
                 ##################### Yubikey
                 form = cgi.FieldStorage(
                     fp=self.rfile, 
@@ -254,9 +256,10 @@ class myHandler(BaseHTTPRequestHandler):
                     for row in reader:
                         col1 = row
                         if otp in row:
-                            key = ("true")
+                            key = True
                         else:
-                            key = ("false")
+                            key = False
+                        #print (key)
 
         #Log OTP
                 with open('otp.log', 'a') as log:
@@ -274,29 +277,64 @@ class myHandler(BaseHTTPRequestHandler):
                             priv = col3
                             aes_key = col4
                             name = col5
-                            exist = ("true")
+                            #print pub, name
+                            exist = True
+                        elif public == "valid":
+                            bypass = True
+                        else:
+                            exist = None
+                            # TODO Everything prints thrice
 
-
-                            if key == ("true"):
-                                print("Key already used.")
-                                self.wfile.write("Key already used.")
-                            elif exist == None:
-                                print("User not found.")
-                                self.wfile.write("User not found")
-                            else:
-                                yubikey = decrypt.YubikeyToken(otp, aes_key)
-                                if yubikey.crc_ok:
-                                    if  yubikey.secret_id == priv:
-                                        print("Welcome, {}.".format(name))
-                                        #self.wfile.write("Welcome, {}.".format(name))
-                                        #self.path = "/status.html"
-                                        global loginTime
-                                        loginTime = (round(int(time.time()), 10))
-                                        print loginTime
-                                        
-                                else:
-                                    print("Key not valid.")
-                                    self.wfile.write("Key not valid.")
+                global loginTime
+                if bypass == True:
+                    global loginTime
+                    loginTime = (round(int(time.time()), 10))
+                    print loginTime
+                elif key == True:
+                    
+                    status_html = open('status.html', 'r')
+                    page = status_html.read()
+                    #print content
+                    self.wfile.write(page)
+                    self.wfile.write("<div id='title'><h2>Login Error</h2></div>")
+                    
+                    print("Key already used.")
+                    self.wfile.write("<div id=status>\nKey already used.\n</div>")
+                    loginTime = False
+                elif exist == True:
+                    yubikey = decrypt.YubikeyToken(otp, aes_key)
+                    if yubikey.crc_ok:
+                        if yubikey.secret_id == priv:
+                            print("Welcome, {}.".format(name))
+                            #self.wfile.write("Welcome, {}.".format(name))
+                            #self.path = "/status.html"
+                            global loginTime
+                            loginTime = (round(int(time.time()), 10))
+                            print loginTime
+                            
+                    else:
+                        
+                        status_html = open('status.html', 'r')
+                        page = status_html.read()
+                        #print content
+                        self.wfile.write(page)
+                        self.wfile.write("<div id='title'><h2>Login Error</h2></div>")
+                        
+                        print("Key not valid.")
+                        self.wfile.write("<div id=status>\nKey not valid. \n</div>")
+                        loginTime = False
+                elif exist == None: # exist == None:
+                    
+                    status_html = open('status.html', 'r')
+                    page = status_html.read()
+                    #print content
+                    self.wfile.write(page)
+                    self.wfile.write("<div id='title'><h2>Login Error</h2></div>")
+                    
+                    print("User not found.")
+                    self.wfile.write("<div id=status>\nUser not found. \n</div>")
+                    # TODO Message not showing. 
+                    loginTime = False
                 
                 #####################
                 timer()
@@ -307,11 +345,11 @@ class myHandler(BaseHTTPRequestHandler):
                     #print content
                     self.wfile.write(page)
                 
+                    self.wfile.write("<div id='title'><h2>Switches:</h2></div>")
                     self.wfile.write("<div id=status>\n")
                     self.wfile.write("<table>\n")
                 
                     print ("Switches from alias list:")
-                
                     for key in wemo:
                         self.name = wemo.get(key, None)
                     
