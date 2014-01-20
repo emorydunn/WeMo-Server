@@ -1,4 +1,4 @@
-#Version: 0.6 BETA
+#Version: 0.6 BETA 2
 #Author: Emory Dunn
 
 # TODO Set cookie after accepting yubikey. Set a timer instead. 
@@ -349,6 +349,22 @@ class myHandler(BaseHTTPRequestHandler):
                     self.wfile.write("\n</div>")
                 
                     self.wfile.write("\n\n</body>\n</html>")
+            if self.path == '/':
+                ##################### Yubikey
+                form = cgi.FieldStorage(
+                    fp=self.rfile, 
+                    headers=self.headers,
+                    environ={'REQUEST_METHOD':'POST',
+                        'CONTENT_TYPE':self.headers['Content-Type'],
+                })
+                loginTime = False
+                print ("Logging out. ")
+                self.send_response(200)
+                self.end_headers()
+                f = open(curdir + sep + "index.html")
+                #print "Other: " +self.path
+                self.wfile.write(f.read())
+                f.close()
         
 class aliases(): #Load the shortcuts into a dict
     def __init__(self):
