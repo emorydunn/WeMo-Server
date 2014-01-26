@@ -12,11 +12,15 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cedce7', end
 }
 
 #status {
-#color: blue;
-position: fixed;
-top: 100px;
-left: 0%;
-padding-left: 20px;
+	#color: blue;
+	position: fixed;
+	top: 65px;
+	left: 0%;
+	padding-left: 20px;
+}
+#status tr {
+	line-height: 43px;
+	
 }
 
 #logout {

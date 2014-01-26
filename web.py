@@ -1,4 +1,4 @@
-#Version: 0.6 BETA 3
+#Version: 0.6 BETA 5
 #Author: Emory Dunn
 
 # TODO Set cookie after accepting yubikey. Set a timer instead. 
@@ -96,7 +96,7 @@ class myHandler(BaseHTTPRequestHandler):
                     
                 #Match the path of a POST request to redirect to the status page.
                 timer()
-                if accepted == True:  
+                if accepted == True:  #Check if the login is valid, if so allow POST to run. 
                     if parsed_path[2] == 'status': 
                         self.path = '/status.html'
                         switches = True
@@ -107,7 +107,7 @@ class myHandler(BaseHTTPRequestHandler):
                         switches = True
                         sendReply = True
                         print ('Status match')
-                else: 
+                else: #If not, continue to show the page, but don't parse POST
                     print ("accepted == False")
                     if parsed_path[2] == 'status': 
                         self.path = '/status.html'
@@ -163,7 +163,7 @@ class myHandler(BaseHTTPRequestHandler):
                 if self.path == '/status.html':
                     #print ("sendReply")
                     timer()
-                    if accepted == True: 
+                    if accepted == True: #If the login is valid, show the status page. 
                         status_html = open('status.html', 'r')
                         page = status_html.read()
                         #print content
@@ -213,7 +213,7 @@ class myHandler(BaseHTTPRequestHandler):
                 
                         self.wfile.write("\n\n</body>\n</html>")
                         
-                    else: 
+                    else: #If not, redirect to the index page. 
                         f = open(curdir + sep + "index.html")
                         #print "Other: " +self.path
                         self.wfile.write(f.read())
@@ -283,7 +283,7 @@ class myHandler(BaseHTTPRequestHandler):
                             bypass = True
                         else:
                             exist = None
-                            # TODO Everything prints thrice
+                            # TODO Everything prints thrice. Fixed. 
 
                 global loginTime
                 if bypass == True:
@@ -419,6 +419,9 @@ class aliases(): #Load the shortcuts into a dict
                     
                     wemo[first] = rest
                     assert wemo[first] == rest
+
+#Timer called anytime the validity of the login needs to be checked. 
+#loginTime set when a valid key in input. 
 class timer():
     def __init__(self):
         global accepted
