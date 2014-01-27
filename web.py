@@ -238,7 +238,7 @@ class myHandler(BaseHTTPRequestHandler):
 
     #Handler for the POST requests
     def do_POST(self):
-            if self.path == '/status':
+            if self.path == '/login':
                 bypass = False
                 ##################### Yubikey
                 form = cgi.FieldStorage(
@@ -312,8 +312,14 @@ class myHandler(BaseHTTPRequestHandler):
                     if yubikey.crc_ok:
                         if yubikey.secret_id == priv:
                             print("Welcome, {}.".format(name))
-                            #self.wfile.write("Welcome, {}.".format(name))
+                            #self.wfile.write('<html><head><meta http-equiv="refresh" content="0; url=/status.html" /></head></html>')
                             #self.path = "/status.html"
+                            
+                            '''login_html = open('login.html', 'r')
+                            page = status_html.read()
+                            #print content
+                            self.wfile.write(page)'''
+                            
                             global loginTime
                             loginTime = (round(int(time.time()), 10))
                             print loginTime
@@ -343,60 +349,10 @@ class myHandler(BaseHTTPRequestHandler):
                     loginTime = False
                 ##################### End YubiKey
 
-                '''
-                ##################### Status Page
                 timer()
-                if accepted == True: 
-                    #print ("POST")
-                    status_html = open('status.html', 'r')
-                    page = status_html.read()
-                    #print content
-                    self.wfile.write(page)
-                
-                    self.wfile.write("<div id='title'><h2>Switches:</h2></div>")
-                    self.wfile.write("<div id=status>\n")
-                    self.wfile.write("<table>\n")
-                
-                    print ("Switches from alias list:")
-                    for key in wemo:
-                        self.name = wemo.get(key, None)
+                if accepted == True: #Redirect to Status Page
+                    self.wfile.write('<html><head><meta http-equiv="refresh" content="0; url=/status.html" /></head></html>')
                     
-                        #print self.name
-                        try:
-                            switch = env.get_switch(self.name)
-                            #print switch
-                            print ("Checking state")
-                            if switch.get_state() == 0: #Set boolean states
-                                self.stateH = 'off'
-                                self.stateHi = 'on'
-                                #print ("State 0")
-                            elif switch.get_state() == 1:
-                                self.stateH = 'on'
-                                self.stateHi = 'off'
-                                #print ("State 0")
-                            else:
-                                print ("Bad State. ")
-                                pass
-                        
-                            print (' -'+self.name+' is '+self.stateH+'.')
-                        
-                            self.wfile.write("\n<tr>\n")
-                            self.wfile.write("<td>"+self.name+ " is currently " +self.stateH+ ".</td>")
-                            self.wfile.write("<td><a href='status?"+key+"="+self.stateHi+"'><img src='img/forward.png'></a></td>")
-                            self.wfile.write("\n</tr>\n")
-                        except:
-                            print (' -'+self.name+ " doesn't exist.")
-                            self.wfile.write("\n<tr>\n")
-                            self.wfile.write("<td>"+wemo[key]+ " doesn't exist.</td>")
-                            self.wfile.write("\n</tr>\n")
-                    
-                    self.wfile.write("</table>\n")
-                        
-                    self.wfile.write("\n</div>")
-                
-                    self.wfile.write("\n\n</body>\n</html>")
-                    
-                    ##################### End Status Page'''
             if self.path == '/':
                 #Logout
                 form = cgi.FieldStorage(

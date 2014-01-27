@@ -38,7 +38,19 @@
 			</dict>
 			<dict>
 				<key>DocumentURL</key>
-				<string>file://localhost/Users/emorydunn/Documents/2014_Q1/01%20January/Projects/Python/WeMo/template%202.html</string>
+				<string>file://localhost/Users/emorydunn/Documents/2014_Q1/01%20January/Projects/Python/WeMo/settings.html</string>
+				<key>StateType</key>
+				<string>DefaultTab</string>
+			</dict>
+			<dict>
+				<key>DocumentURL</key>
+				<string>file://localhost/Users/emorydunn/Documents/2014_Q1/01%20January/Projects/Python/WeMo/login.html</string>
+				<key>StateType</key>
+				<string>DefaultTab</string>
+			</dict>
+			<dict>
+				<key>DocumentURL</key>
+				<string>file://localhost/Users/emorydunn/Documents/2014_Q1/01%20January/Projects/Python/WeMo/index.html</string>
 				<key>StateType</key>
 				<string>DefaultTab</string>
 			</dict>
