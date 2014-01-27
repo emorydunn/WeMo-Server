@@ -20,6 +20,7 @@ os.system('clear')
 PORT_NUMBER = 9090
 exist = None
 accepted =  False
+global loginTime
 loginTime = False
 
 def on_switch(switch):
@@ -159,9 +160,11 @@ class myHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-type',mimetype)
                 self.end_headers()
                 
+                
+                ##################### Status Page
                 #The Status Board
                 if self.path == '/status.html':
-                    #print ("sendReply")
+                   #print ("sendReply")
                     timer()
                     if accepted == True: #If the login is valid, show the status page. 
                         status_html = open('status.html', 'r')
@@ -218,6 +221,9 @@ class myHandler(BaseHTTPRequestHandler):
                         #print "Other: " +self.path
                         self.wfile.write(f.read())
                         f.close()
+                        
+                    ##################### End Status Page
+                    
                             
                 else:
                     f = open(curdir + sep + self.path)
@@ -285,7 +291,7 @@ class myHandler(BaseHTTPRequestHandler):
                             exist = None
                             # TODO Everything prints thrice. Fixed. 
 
-                global loginTime
+                #global loginTime
                 if bypass == True:
                     global loginTime
                     loginTime = (round(int(time.time()), 10))
@@ -335,8 +341,10 @@ class myHandler(BaseHTTPRequestHandler):
                     self.wfile.write("<div id=status>\nUser not found. \n</div>")
                     # TODO Message not showing. 
                     loginTime = False
-                
-                #####################
+                ##################### End YubiKey
+
+                '''
+                ##################### Status Page
                 timer()
                 if accepted == True: 
                     #print ("POST")
@@ -387,8 +395,10 @@ class myHandler(BaseHTTPRequestHandler):
                     self.wfile.write("\n</div>")
                 
                     self.wfile.write("\n\n</body>\n</html>")
+                    
+                    ##################### End Status Page'''
             if self.path == '/':
-                ##################### Yubikey
+                #Logout
                 form = cgi.FieldStorage(
                     fp=self.rfile, 
                     headers=self.headers,
@@ -403,22 +413,44 @@ class myHandler(BaseHTTPRequestHandler):
                 #print "Other: " +self.path
                 self.wfile.write(f.read())
                 f.close()
+                
+            if self.path == '/settings.html':
+                #Refresh Aliases
+                form = cgi.FieldStorage(
+                    fp=self.rfile, 
+                    headers=self.headers,
+                    environ={'REQUEST_METHOD':'POST',
+                        'CONTENT_TYPE':self.headers['Content-Type'],
+                })
+                aliases()
+                self.send_response(200)
+                self.end_headers()
+                f = open(curdir + sep + "settings.html")
+                #print "Other: " +self.path
+                self.wfile.write(f.read())
+                f.close()
         
 class aliases(): #Load the shortcuts into a dict
     def __init__(self):
+        global wemo
+        wemo = {}
+        print ("Refreshing alias list: ")
         with open(os.path.abspath("/Users/emorydunn/.wemo/config.yml")) as a:
             for line in a.readlines():
                 #print line
-                if line.startswith('    '):
+                if line.startswith('    #'):
+                    pass
+                elif line.startswith('    '):
                     #print line[:-1]
                     
                     first, colon, rest = line.partition(':')
                     first = first[4:]
                     rest = rest[1:-1]
-                    #print (first, colon, rest)
+                    print ('    ' +first+ ': ' +rest)
                     
                     wemo[first] = rest
-                    assert wemo[first] == rest
+        #print wemo
+                    #assert wemo[first] == rest
 
 #Timer called anytime the validity of the login needs to be checked. 
 #loginTime set when a valid key in input. 
@@ -439,11 +471,9 @@ class timer():
             accepted = False
         
 
-
 env = Environment(on_switch)
 env.discover(seconds=3)
 env.start()
-wemo = {}
 aliases()
 #oh = env.get_switch('Office Heater')
 
