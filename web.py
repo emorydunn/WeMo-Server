@@ -241,61 +241,76 @@ class myHandler(BaseHTTPRequestHandler):
             if self.path == '/login':
                 bypass = False
                 ##################### Yubikey
-                form = cgi.FieldStorage(
-                    fp=self.rfile, 
-                    headers=self.headers,
-                    environ={'REQUEST_METHOD':'POST',
-                        'CONTENT_TYPE':self.headers['Content-Type'],
-                })
-                otp = form["password"].value
-                print "Your OTP is: %s" % form["password"].value
-                self.send_response(200)
-                self.end_headers()
+                try:
+                    form = cgi.FieldStorage(
+                        fp=self.rfile, 
+                        headers=self.headers,
+                        environ={'REQUEST_METHOD':'POST',
+                            'CONTENT_TYPE':self.headers['Content-Type'],
+                    })
+                    otp = form["password"].value
+                    print "Your OTP is: %s" % form["password"].value
+                    self.send_response(200)
+                    self.end_headers()
         #			self.wfile.write("Thanks %s !" % form["password"].value)
+                except:
+                    print ("No password")
+                    otp = None
 
 
-        #Extract Public Key
-                public = otp[:12]
-        #Check OTP
-                with open('otp.log', 'rb') as log:
-                    reader = csv.reader(log)
-                    for row in reader:
-                        col1 = row
-                        if otp in row:
-                            key = True
-                        else:
-                            key = False
-                        #print (key)
+                if not otp == None:
+            #Extract Public Key
+                    public = otp[:12]
+            #Check OTP
+                    with open('otp.log', 'rb') as log:
+                        reader = csv.reader(log)
+                        for row in reader:
+                            col1 = row
+                            if otp in row:
+                                key = True
+                            else:
+                                key = False
+                            #print (key)
 
-        #Log OTP
-                with open('otp.log', 'a') as log:
-                    auth_write = csv.writer(log)
-                    auth_write.writerow([otp])
+            #Log OTP
+                    with open('otp.log', 'a') as log:
+                        auth_write = csv.writer(log)
+                        auth_write.writerow([otp])
 
-        #Set Variables
+            #Set Variables
 
-                with open('auth.csv', 'rb') as f:
-                    reader = csv.reader(f)
-                    for row in reader:
-                        col1, col2, col3, col4, col5 = row
-                        if public in row:
-                            pub = col2
-                            priv = col3
-                            aes_key = col4
-                            name = col5
-                            #print pub, name
-                            exist = True
-                        elif public == "valid":
-                            bypass = True
-                        else:
-                            exist = None
-                            # TODO Everything prints thrice. Fixed. 
+                    with open('auth.csv', 'rb') as f:
+                        reader = csv.reader(f)
+                        for row in reader:
+                            col1, col2, col3, col4, col5 = row
+                            if public in row:
+                                pub = col2
+                                priv = col3
+                                aes_key = col4
+                                name = col5
+                                #print pub, name
+                                exist = True
+                            elif public == "valid":
+                                bypass = True
+                            else:
+                                exist = None
 
                 #global loginTime
                 if bypass == True:
                     global loginTime
                     loginTime = (round(int(time.time()), 10))
                     print loginTime
+                elif otp == None:
+                    status_html = open('status.html', 'r')
+                    page = status_html.read()
+                    #print content
+                    self.wfile.write(page)
+                    self.wfile.write("<div id='title'><h2>Login Error</h2></div>")
+                    
+                    print("User not found.")
+                    self.wfile.write("<div id=status>\nNo key was input. \n</div>")
+                    # TODO Message not showing. 
+                    loginTime = False
                 elif key == True:
                     
                     status_html = open('status.html', 'r')
@@ -312,14 +327,6 @@ class myHandler(BaseHTTPRequestHandler):
                     if yubikey.crc_ok:
                         if yubikey.secret_id == priv:
                             print("Welcome, {}.".format(name))
-                            #self.wfile.write('<html><head><meta http-equiv="refresh" content="0; url=/status.html" /></head></html>')
-                            #self.path = "/status.html"
-                            
-                            '''login_html = open('login.html', 'r')
-                            page = status_html.read()
-                            #print content
-                            self.wfile.write(page)'''
-                            
                             global loginTime
                             loginTime = (round(int(time.time()), 10))
                             print loginTime
