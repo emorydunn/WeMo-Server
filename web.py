@@ -224,7 +224,17 @@ class myHandler(BaseHTTPRequestHandler):
                         
                     ##################### End Status Page
                     
-                            
+                if self.path == '/index.html':
+                   #print ("sendReply")
+                    timer()
+                    if accepted == True: #If the login is valid, redirect to status page.
+                        self.wfile.write('<html><head><meta http-equiv="refresh" content="0; url=/status.html" /></head></html>')
+                    else:
+                        f = open(curdir + sep + self.path)
+                        #print "Other: " +self.path
+                        self.wfile.write(f.read())
+                        f.close()
+                
                 else:
                     f = open(curdir + sep + self.path)
                     #print "Other: " +self.path
