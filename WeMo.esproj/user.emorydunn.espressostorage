@@ -9,20 +9,18 @@
 		<key>ContentSize</key>
 		<string>{1106, 705}</string>
 		<key>ProjectURL</key>
-		<string>file://localhost/Users/emorydunn/Documents/Python/WeMo/WeMo.esproj/</string>
+		<string>file://localhost/Users/emorydunn/Documents/2014_Q1/01%20January/Projects/Python/WeMo/WeMo.esproj/</string>
 		<key>StateType</key>
 		<string>ProjectWindow</string>
 		<key>TopLeftPoint</key>
-		<string>{409, 975}</string>
+		<string>{617, 981}</string>
 	</dict>
 	<key>com.macrabbit.Espresso.FileManager.DisclosureCollapsed</key>
 	<false/>
 	<key>com.macrabbit.Espresso.FileManager.FileControllerState</key>
 	<dict>
 		<key>ExpandedURLs</key>
-		<array>
-			<string>file://localhost/Users/emorydunn/Documents/Python/WeMo/img</string>
-		</array>
+		<array/>
 	</dict>
 	<key>com.macrabbit.Espresso.Publisher.DisclosureCollapsed</key>
 	<false/>

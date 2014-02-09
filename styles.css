@@ -17,10 +17,21 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cedce7', end
 	top: 65px;
 	left: 0%;
 	padding-left: 20px;
-}
-#status tr {
 	line-height: 43px;
+}
+#status img {
+	vertical-align: middle
 	
+}
+
+#settings {
+	#color: blue;
+	position: fixed;
+	top: 65px;
+	left: 0%;
+	padding-left: 20px;
+	#padding-top: 43px;
+	#line-height: 43px;
 }
 
 #logout {

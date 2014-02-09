@@ -167,14 +167,15 @@ class myHandler(BaseHTTPRequestHandler):
                    #print ("sendReply")
                     timer()
                     if accepted == True: #If the login is valid, show the status page. 
-                        status_html = open('status.html', 'r')
-                        page = status_html.read()
+                        #status_html = open('status.html', 'r')
+                        #page = status_html.read()
                         #print content
-                        self.wfile.write(page)
-                
-                        self.wfile.write("<div id='title'><h2>Switches:</h2></div>")
-                        self.wfile.write("<div id=status>\n")
-                        self.wfile.write("<table>\n")
+                        #self.wfile.write(page)
+                        
+                        self.wfile.write("<html>\n<body>\n")
+                        self.wfile.write("<div id='title'><h2>Switches:</h2></div>\n")
+                        self.wfile.write("\n<div id=status>\n")
+                        #self.wfile.write("<table>\n")
                 
                         print ("Switches from alias list:")
                 
@@ -200,21 +201,28 @@ class myHandler(BaseHTTPRequestHandler):
                         
                                 print (' -'+self.name+' is '+self.stateH+'.')
                         
-                                self.wfile.write("\n<tr>\n")
-                                self.wfile.write("<td>"+self.name+ " is currently " +self.stateH+ ".</td>")
-                                self.wfile.write("<td><a href='status?"+key+"="+self.stateHi+"'><img src='img/forward.png'></a></td>")
-                                self.wfile.write("\n</tr>\n")
+                                #self.wfile.write("\n<tr>\n")
+                                #self.wfile.write("<td>"+self.name+ " is currently " +self.stateH+ ".</td>")
+                                #self.wfile.write("<td><a href='status?"+key+"="+self.stateHi+"'><img src='img/forward.png'></a></td>")
+                                #self.wfile.write("\n</tr>\n")
+                                
+                                self.wfile.write(self.name+ " is currently " +self.stateH+ ".\n")
+                                self.wfile.write("<a href='status?"+key+"="+self.stateHi+"'><img src='img/forward.png'></a><br>\n")
                             except:
                                 print (' -'+self.name+ " doesn't exist.")
-                                self.wfile.write("\n<tr>\n")
-                                self.wfile.write("<td>"+wemo[key]+ " doesn't exist.</td>")
-                                self.wfile.write("\n</tr>\n")
+                                #self.wfile.write("\n<tr>\n")
+                                #self.wfile.write("<td>"+wemo[key]+ " doesn't exist.</td>")
+                                #self.wfile.write("\n</tr>\n")
+                                
+                                
+                                self.wfile.write(wemo[key]+ " doesn't exist.<br>\n")
+                                
                     
-                        self.wfile.write("</table>\n")
+                        #self.wfile.write("</table>\n")
                         
                         self.wfile.write("\n</div>")
                 
-                        self.wfile.write("\n\n</body>\n</html>")
+                        #self.wfile.write("\n\n</body>\n</html>")
                         
                     else: #If not, redirect to the index page. 
                         f = open(curdir + sep + "index.html")
