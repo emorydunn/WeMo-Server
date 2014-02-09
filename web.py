@@ -1,10 +1,7 @@
 #Version: 0.6 BETA 5
 #Author: Emory Dunn
 
-# TODO Set cookie after accepting yubikey. Set a timer instead. 
-# TODO Associate switches with users
-# TODO If a switch goes offline have a reasonable timeout for loading the page. 
-
+# TODO Set cookie after accepting yubikey. 
 #!/usr/bin/python
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 from os import curdir, sep
@@ -12,7 +9,9 @@ import cgi
 import os, urlparse, time
 from ouimeaux.environment import Environment
 from static import static
-import csv, decrypt
+import csv
+from yubikey import decrypt
+import Cookie
 
 os.system('clear')
 #import web_auth
@@ -348,6 +347,7 @@ class myHandler(BaseHTTPRequestHandler):
                             global loginTime
                             loginTime = (round(int(time.time()), 10))
                             print loginTime
+                            cookie()
                             
                     else:
                         
@@ -450,6 +450,17 @@ class timer():
             accepted = True
         else:
             accepted = False
+            
+def cookie():
+    """docstring for cookie"""
+    c = Cookie.SimpleCookie()
+    
+    c['login'] = 'hello'
+    c['login']['expires'] = 1*1*3*60*60
+    
+    print (c)
+    print ("Content-type: text/html\n")
+    print ("\n\n")
         
 
 env = Environment(on_switch)
