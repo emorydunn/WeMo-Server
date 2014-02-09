@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ESProjectShowHiddenFilesKey</key>
+	<false/>
+	<key>ESProjectWindowState</key>
+	<dict>
+		<key>ContentSize</key>
+		<string>{1106, 705}</string>
+		<key>ProjectURL</key>
+		<string>file://localhost/Users/emorydunn/Documents/2014_Q1/01%20January/Projects/Python/WeMo/WeMo.esproj/</string>
+		<key>StateType</key>
+		<string>ProjectWindow</string>
+		<key>TopLeftPoint</key>
+		<string>{617, 981}</string>
+	</dict>
+	<key>com.macrabbit.Espresso.FileManager.DisclosureCollapsed</key>
+	<false/>
+	<key>com.macrabbit.Espresso.FileManager.FileControllerState</key>
+	<dict>
+		<key>ExpandedURLs</key>
+		<array/>
+	</dict>
+	<key>com.macrabbit.Espresso.Publisher.DisclosureCollapsed</key>
+	<false/>
+	<key>com.macrabbit.Espresso.Workspace.Tabs</key>
+	<dict>
+		<key>Tabs</key>
+		<array>
+			<dict>
+				<key>DocumentURL</key>
+				<string>file://localhost/Users/emorydunn/Documents/2014_Q1/01%20January/Projects/Python/WeMo/template.html</string>
+				<key>StateType</key>
+				<string>DefaultTab</string>
+			</dict>
+			<dict>
+				<key>DocumentURL</key>
+				<string>file://localhost/Users/emorydunn/Documents/2014_Q1/01%20January/Projects/Python/WeMo/settings.html</string>
+				<key>StateType</key>
+				<string>DefaultTab</string>
+			</dict>
+			<dict>
+				<key>DocumentURL</key>
+				<string>file://localhost/Users/emorydunn/.Trash/login.html</string>
+				<key>StateType</key>
+				<string>DefaultTab</string>
+			</dict>
+			<dict>
+				<key>DocumentURL</key>
+				<string>file://localhost/Users/emorydunn/Documents/2014_Q1/01%20January/Projects/Python/WeMo/index.html</string>
+				<key>StateType</key>
+				<string>DefaultTab</string>
+			</dict>
+			<dict>
+				<key>DocumentURL</key>
+				<string>file://localhost/Users/emorydunn/Documents/2014_Q1/01%20January/Projects/Python/WeMo/test.html</string>
+				<key>StateType</key>
+				<string>DefaultTab</string>
+			</dict>
+			<dict>
+				<key>DocumentURL</key>
+				<string>file://localhost/Users/emorydunn/Documents/2014_Q1/01%20January/Projects/Python/WeMo/styles.css</string>
+				<key>StateType</key>
+				<string>DefaultTab</string>
+			</dict>
+			<dict>
+				<key>DocumentURL</key>
+				<string>file://localhost/Users/emorydunn/Documents/2014_Q1/01%20January/Projects/Python/WeMo/status.html</string>
+				<key>StateType</key>
+				<string>DefaultTab</string>
+			</dict>
+		</array>
+	</dict>
+	<key>com.macrabbit.Espresso.WorkspaceTabs.DisclosureCollapsed</key>
+	<false/>
+</dict>
+</plist>

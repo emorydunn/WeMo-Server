@@ -1,22 +1,27 @@
-#Version: 0.5
+#Version: 0.6 BETA 5
 #Author: Emory Dunn
 
-# TODO POST showing server status in browser. With no content the self.send was sending the status. 
+# TODO Set cookie after accepting yubikey. Set a timer instead. 
+# TODO Associate switches with users
 # TODO If a switch goes offline have a reasonable timeout for loading the page. 
 
 #!/usr/bin/python
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 from os import curdir, sep
 import cgi
-import os, urlparse
+import os, urlparse, time
 from ouimeaux.environment import Environment
 from static import static
+import csv, decrypt
 
 os.system('clear')
 #import web_auth
 
 PORT_NUMBER = 9090
 exist = None
+accepted =  False
+global loginTime
+loginTime = False
 
 def on_switch(switch):
     print "Switch found!", switch.name
@@ -90,17 +95,32 @@ class myHandler(BaseHTTPRequestHandler):
                     sendReply = True
                     #print 'Path: ' +self.path
                     
-                #Match the path of a POST request to redirect to the status page. 
-                if parsed_path[2] == 'status': 
-                    self.path = '/status.html'
-                    switches = False
-                    sendReply = True
-                    #print ('Status match')
-                elif parsed_path[2] == 'status.html':
-                    self.path = '/status.html'
-                    switches = False
-                    sendReply = True
-                    #print ('Status match')
+                #Match the path of a POST request to redirect to the status page.
+                timer()
+                if accepted == True:  #Check if the login is valid, if so allow POST to run. 
+                    if parsed_path[2] == 'status': 
+                        self.path = '/status.html'
+                        switches = True
+                        sendReply = True
+                        print ('Status match')
+                    elif parsed_path[2] == 'status.html':
+                        self.path = '/status.html'
+                        switches = True
+                        sendReply = True
+                        print ('Status match')
+                else: #If not, continue to show the page, but don't parse POST
+                    print ("accepted == False")
+                    if parsed_path[2] == 'status': 
+                        self.path = '/status.html'
+                        switches = False
+                        sendReply = True
+                        print ('Status match')
+                    elif parsed_path[2] == 'status.html':
+                        self.path = '/status.html'
+                        switches = False
+                        sendReply = True
+                        print ('Status match')
+                    
             except:
                 params = {}
         
@@ -140,57 +160,89 @@ class myHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-type',mimetype)
                 self.end_headers()
                 
+                
+                ##################### Status Page
                 #The Status Board
                 if self.path == '/status.html':
-                   
-                    status_html = open('status.html', 'r')
-                    page = status_html.read()
-                    #print content
-                    self.wfile.write(page)
-                    
-                    self.wfile.write("<div id=status>\n")
-                    self.wfile.write("<table>\n")
-                    
-                    print ("Switches from alias list:")
-                    
-                    for key in wemo:
-                        self.name = wemo.get(key, None)
+                   #print ("sendReply")
+                    timer()
+                    if accepted == True: #If the login is valid, show the status page. 
+                        #status_html = open('status.html', 'r')
+                        #page = status_html.read()
+                        #print content
+                        #self.wfile.write(page)
                         
-                        #print self.name
-                        try:
-                            switch = env.get_switch(self.name)
-                            #print switch
-                            print ("Checking state")
-                            if switch.get_state() == 0: #Set boolean states
-                                self.stateH = 'off'
-                                self.stateHi = 'on'
-                                #print ("State 0")
-                            elif switch.get_state() == 1:
-                                self.stateH = 'on'
-                                self.stateHi = 'off'
-                                #print ("State 0")
-                            else:
-                                print ("Bad State. ")
-                                pass
-                            
-                            print (' -'+self.name+' is '+self.stateH+'.')
-                            
-                            self.wfile.write("\n<tr>\n")
-                            self.wfile.write("<td>"+self.name+ " is currently " +self.stateH+ ".</td>")
-                            self.wfile.write("<td><a href='status?"+key+"="+self.stateHi+"'><img src='img/forward.png'></a></td>")
-                            self.wfile.write("\n</tr>\n")
-                        except:
-                            print (' -'+self.name+ " doesn't exist.")
-                            self.wfile.write("\n<tr>\n")
-                            self.wfile.write("<td>"+wemo[key]+ " doesn't exist.</td>")
-                            self.wfile.write("\n</tr>\n")
-                        
-                    self.wfile.write("</table>\n")
-                            
-                    self.wfile.write("\n</div>")
+                        self.wfile.write("<html>\n<body>\n")
+                        self.wfile.write("<div id='title'><h2>Switches:</h2></div>\n")
+                        self.wfile.write("\n<div id=status>\n")
+                        #self.wfile.write("<table>\n")
+                
+                        print ("Switches from alias list:")
+                
+                        for key in wemo:
+                            self.name = wemo.get(key, None)
                     
-                    self.wfile.write("\n\n</body>\n</html>")
-                            
+                            #print self.name
+                            try:
+                                switch = env.get_switch(self.name)
+                                #print switch
+                                print ("Checking state")
+                                if switch.get_state() == 0: #Set boolean states
+                                    self.stateH = 'off'
+                                    self.stateHi = 'on'
+                                    #print ("State 0")
+                                elif switch.get_state() == 1:
+                                    self.stateH = 'on'
+                                    self.stateHi = 'off'
+                                    #print ("State 0")
+                                else:
+                                    print ("Bad State. ")
+                                    pass
+                        
+                                print (' -'+self.name+' is '+self.stateH+'.')
+                        
+                                #self.wfile.write("\n<tr>\n")
+                                #self.wfile.write("<td>"+self.name+ " is currently " +self.stateH+ ".</td>")
+                                #self.wfile.write("<td><a href='status?"+key+"="+self.stateHi+"'><img src='img/forward.png'></a></td>")
+                                #self.wfile.write("\n</tr>\n")
+                                
+                                self.wfile.write(self.name+ " is currently " +self.stateH+ ".\n")
+                                self.wfile.write("<a href='status?"+key+"="+self.stateHi+"'><img src='img/forward.png'></a><br>\n")
+                            except:
+                                print (' -'+self.name+ " doesn't exist.")
+                                #self.wfile.write("\n<tr>\n")
+                                #self.wfile.write("<td>"+wemo[key]+ " doesn't exist.</td>")
+                                #self.wfile.write("\n</tr>\n")
+                                
+                                
+                                self.wfile.write(wemo[key]+ " doesn't exist.<br>\n")
+                                
+                    
+                        #self.wfile.write("</table>\n")
+                        
+                        self.wfile.write("\n</div>")
+                
+                        #self.wfile.write("\n\n</body>\n</html>")
+                        
+                    else: #If not, redirect to the index page. 
+                        f = open(curdir + sep + "index.html")
+                        #print "Other: " +self.path
+                        self.wfile.write(f.read())
+                        f.close()
+                        
+                    ##################### End Status Page
+                    
+                if self.path == '/index.html':
+                   #print ("sendReply")
+                    timer()
+                    if accepted == True: #If the login is valid, redirect to status page.
+                        self.wfile.write('<html><head><meta http-equiv="refresh" content="0; url=/status.html" /></head></html>')
+                    else:
+                        f = open(curdir + sep + self.path)
+                        #print "Other: " +self.path
+                        self.wfile.write(f.read())
+                        f.close()
+                
                 else:
                     f = open(curdir + sep + self.path)
                     #print "Other: " +self.path
@@ -204,29 +256,205 @@ class myHandler(BaseHTTPRequestHandler):
 
     #Handler for the POST requests
     def do_POST(self):
-        pass
+            if self.path == '/login':
+                bypass = False
+                ##################### Yubikey
+                try:
+                    form = cgi.FieldStorage(
+                        fp=self.rfile, 
+                        headers=self.headers,
+                        environ={'REQUEST_METHOD':'POST',
+                            'CONTENT_TYPE':self.headers['Content-Type'],
+                    })
+                    otp = form["password"].value
+                    print "Your OTP is: %s" % form["password"].value
+                    self.send_response(200)
+                    self.end_headers()
+        #			self.wfile.write("Thanks %s !" % form["password"].value)
+                except:
+                    print ("No password")
+                    otp = None
+
+
+                if not otp == None:
+            #Extract Public Key
+                    public = otp[:12]
+            #Check OTP
+                    with open('otp.log', 'rb') as log:
+                        reader = csv.reader(log)
+                        for row in reader:
+                            col1 = row
+                            if otp in row:
+                                key = True
+                            else:
+                                key = False
+                            #print (key)
+
+            #Log OTP
+                    with open('otp.log', 'a') as log:
+                        auth_write = csv.writer(log)
+                        auth_write.writerow([otp])
+
+            #Set Variables
+
+                    with open('auth.csv', 'rb') as f:
+                        reader = csv.reader(f)
+                        for row in reader:
+                            col1, col2, col3, col4, col5 = row
+                            if public in row:
+                                pub = col2
+                                priv = col3
+                                aes_key = col4
+                                name = col5
+                                #print pub, name
+                                exist = True
+                            elif public == "valid":
+                                bypass = True
+                            else:
+                                exist = None
+
+                #global loginTime
+                if bypass == True:
+                    global loginTime
+                    loginTime = (round(int(time.time()), 10))
+                    print loginTime
+                elif otp == None:
+                    status_html = open('status.html', 'r')
+                    page = status_html.read()
+                    #print content
+                    self.wfile.write(page)
+                    self.wfile.write("<div id='title'><h2>Login Error</h2></div>")
+                    
+                    print("User not found.")
+                    self.wfile.write("<div id=status>\nNo key was input. \n</div>")
+                    # TODO Message not showing. 
+                    loginTime = False
+                elif key == True:
+                    
+                    status_html = open('status.html', 'r')
+                    page = status_html.read()
+                    #print content
+                    self.wfile.write(page)
+                    self.wfile.write("<div id='title'><h2>Login Error</h2></div>")
+                    
+                    print("Key already used.")
+                    self.wfile.write("<div id=status>\nKey already used.\n</div>")
+                    loginTime = False
+                elif exist == True:
+                    yubikey = decrypt.YubikeyToken(otp, aes_key)
+                    if yubikey.crc_ok:
+                        if yubikey.secret_id == priv:
+                            print("Welcome, {}.".format(name))
+                            global loginTime
+                            loginTime = (round(int(time.time()), 10))
+                            print loginTime
+                            
+                    else:
+                        
+                        status_html = open('status.html', 'r')
+                        page = status_html.read()
+                        #print content
+                        self.wfile.write(page)
+                        self.wfile.write("<div id='title'><h2>Login Error</h2></div>")
+                        
+                        print("Key not valid.")
+                        self.wfile.write("<div id=status>\nKey not valid. \n</div>")
+                        loginTime = False
+                elif exist == None: # exist == None:
+                    
+                    status_html = open('status.html', 'r')
+                    page = status_html.read()
+                    #print content
+                    self.wfile.write(page)
+                    self.wfile.write("<div id='title'><h2>Login Error</h2></div>")
+                    
+                    print("User not found.")
+                    self.wfile.write("<div id=status>\nUser not found. \n</div>")
+                    # TODO Message not showing. 
+                    loginTime = False
+                ##################### End YubiKey
+
+                timer()
+                if accepted == True: #Redirect to Status Page
+                    self.wfile.write('<html><head><meta http-equiv="refresh" content="0; url=/status.html" /></head></html>')
+                    
+            if self.path == '/':
+                #Logout
+                form = cgi.FieldStorage(
+                    fp=self.rfile, 
+                    headers=self.headers,
+                    environ={'REQUEST_METHOD':'POST',
+                        'CONTENT_TYPE':self.headers['Content-Type'],
+                })
+                loginTime = False
+                print ("Logging out. ")
+                self.send_response(200)
+                self.end_headers()
+                f = open(curdir + sep + "index.html")
+                #print "Other: " +self.path
+                self.wfile.write(f.read())
+                f.close()
+                
+            if self.path == '/settings.html':
+                #Refresh Aliases
+                form = cgi.FieldStorage(
+                    fp=self.rfile, 
+                    headers=self.headers,
+                    environ={'REQUEST_METHOD':'POST',
+                        'CONTENT_TYPE':self.headers['Content-Type'],
+                })
+                aliases()
+                self.send_response(200)
+                self.end_headers()
+                f = open(curdir + sep + "settings.html")
+                #print "Other: " +self.path
+                self.wfile.write(f.read())
+                f.close()
         
 class aliases(): #Load the shortcuts into a dict
     def __init__(self):
+        global wemo
+        wemo = {}
+        print ("Refreshing alias list: ")
         with open(os.path.abspath("/Users/emorydunn/.wemo/config.yml")) as a:
             for line in a.readlines():
                 #print line
-                if line.startswith('    '):
+                if line.startswith('    #'):
+                    pass
+                elif line.startswith('    '):
                     #print line[:-1]
                     
                     first, colon, rest = line.partition(':')
                     first = first[4:]
                     rest = rest[1:-1]
-                    #print (first, colon, rest)
+                    print ('    ' +first+ ': ' +rest)
                     
                     wemo[first] = rest
-                    assert wemo[first] == rest
+        #print wemo
+                    #assert wemo[first] == rest
 
+#Timer called anytime the validity of the login needs to be checked. 
+#loginTime set when a valid key in input. 
+class timer():
+    def __init__(self):
+        global accepted
+        global loginTime
+        #print loginTime
+        timeout = 3600
+        logoutTime = loginTime + timeout
+        #print logoutTime
+        #print (round(int(time.time()), 10))
+        if loginTime == False:
+            accepted = False
+        elif time.time() < logoutTime:
+            accepted = True
+        else:
+            accepted = False
+        
 
 env = Environment(on_switch)
 env.discover(seconds=3)
 env.start()
-wemo = {}
 aliases()
 #oh = env.get_switch('Office Heater')
 
