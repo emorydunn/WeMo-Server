@@ -18,9 +18,10 @@ os.system('clear')
 
 PORT_NUMBER = 9090
 exist = None
-accepted =  False
-global loginTime
-loginTime = False
+#accepted =  False
+#global loginTime
+#loginTime = False
+
 
 def on_switch(switch):
     print "Switch found!", switch.name
@@ -95,8 +96,8 @@ class myHandler(BaseHTTPRequestHandler):
                     #print 'Path: ' +self.path
                     
                 #Match the path of a POST request to redirect to the status page.
-                timer()
-                if accepted == True:  #Check if the login is valid, if so allow POST to run. 
+                login.get()
+                if login.accepted == True:  #Check if the login is valid, if so allow POST to run. 
                     if parsed_path[2] == 'status': 
                         self.path = '/status.html'
                         switches = True
@@ -164,8 +165,11 @@ class myHandler(BaseHTTPRequestHandler):
                 #The Status Board
                 if self.path == '/status.html':
                    #print ("sendReply")
-                    timer()
-                    if accepted == True: #If the login is valid, show the status page. 
+                    #login.get()
+                    
+                    login.get()
+                    
+                    if login.accepted == True: #If the login is valid, show the status page. 
                         #status_html = open('status.html', 'r')
                         #page = status_html.read()
                         #print content
@@ -233,8 +237,8 @@ class myHandler(BaseHTTPRequestHandler):
                     
                 if self.path == '/index.html':
                    #print ("sendReply")
-                    timer()
-                    if accepted == True: #If the login is valid, redirect to status page.
+                    login.get()
+                    if login.accepted == True: #If the login is valid, redirect to status page.
                         self.wfile.write('<html><head><meta http-equiv="refresh" content="0; url=/status.html" /></head></html>')
                     else:
                         f = open(curdir + sep + self.path)
@@ -267,8 +271,8 @@ class myHandler(BaseHTTPRequestHandler):
                     })
                     otp = form["password"].value
                     print "Your OTP is: %s" % form["password"].value
-                    self.send_response(200)
-                    self.end_headers()
+                    #self.send_response(200)
+                    #self.end_headers()
         #			self.wfile.write("Thanks %s !" % form["password"].value)
                 except:
                     print ("No password")
@@ -344,10 +348,18 @@ class myHandler(BaseHTTPRequestHandler):
                     if yubikey.crc_ok:
                         if yubikey.secret_id == priv:
                             print("Welcome, {}.".format(name))
-                            global loginTime
-                            loginTime = (round(int(time.time()), 10))
-                            print loginTime
-                            cookie()
+                            #global loginTime
+                            #loginTime = (round(int(time.time()), 10))
+                            #print loginTime
+                            #login = cookie()
+                            loginName = ("{}".format(name))
+                            login.set(loginName)
+                            print ("Good" +login.ch)
+                            self.send_response(200)
+                            self.send_header('Set-Cookie', login.ch)
+                            self.send_header('Content-type', "text/html")
+                            
+                            self.end_headers()
                             
                     else:
                         
@@ -373,10 +385,17 @@ class myHandler(BaseHTTPRequestHandler):
                     # TODO Message not showing. 
                     loginTime = False
                 ##################### End YubiKey
-
-                timer()
-                if accepted == True: #Redirect to Status Page
-                    self.wfile.write('<html><head><meta http-equiv="refresh" content="0; url=/status.html" /></head></html>')
+                
+                print "Calling get"
+                try:
+                    login.get()
+                    print ("Got")
+                except:
+                    print ("Failed")
+                print login.accepted
+                if login.accepted == True: #Redirect to Status Page
+                    print ("True")
+                    self.wfile.write('\n\n<html><head><meta http-equiv="refresh" content="0; url=/status.html" /></head></html>')
                     
             if self.path == '/':
                 #Logout
@@ -450,23 +469,47 @@ class timer():
             accepted = True
         else:
             accepted = False
-            
-def cookie():
+
+class cookie():
     """docstring for cookie"""
-    c = Cookie.SimpleCookie()
+    def set(self, loginName):
+        print loginName
+        self.c = Cookie.SimpleCookie()
     
-    c['login'] = 'hello'
-    c['login']['expires'] = 1*1*3*60*60
+        self.c['login'] = loginName
+        self.c['login']['expires'] = 1*1*3*60*60
     
-    print (c)
-    print ("Content-type: text/html\n")
-    print ("\n\n")
+        print (self.c)
+        self.ch = self.c.output(header='')
+        
+    def get(self):
+        """docstring for get"""
+        print ("Get")
+        if 'HTTP_COOKIE' in os.environ:
+            print ("Cookies!")
+            cookie_string=os.environ.get('HTTP_COOKIE')
+            cr=Cookie.SimpleCookie()
+            cr.load(cookie_string)
+
+            try:
+                data=cr['login'].value
+                print "cookie data: "+data+"<br>"
+                self.accepted = True
+            except KeyError:
+                print "The cookie was not set or has expired<br>"
+                self.accepted = False
+        else:
+            self.accepted = False
+        
+        #return self.accepted
+                  
         
 
 env = Environment(on_switch)
 env.discover(seconds=3)
 env.start()
 aliases()
+login = cookie()
 #oh = env.get_switch('Office Heater')
 
 
