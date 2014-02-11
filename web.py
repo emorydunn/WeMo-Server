@@ -352,13 +352,12 @@ class myHandler(BaseHTTPRequestHandler):
                             #loginTime = (round(int(time.time()), 10))
                             #print loginTime
                             #login = cookie()
-                            loginName = ("{}".format(name))
+                            loginName = ("{}".format(pub))
                             login.set(loginName)
-                            print ("Good" +login.ch)
+                            #print ("Good" +login.ch)
                             self.send_response(200)
                             self.send_header('Set-Cookie', login.ch)
                             self.send_header('Content-type', "text/html")
-                            
                             self.end_headers()
                             
                     else:
@@ -406,9 +405,14 @@ class myHandler(BaseHTTPRequestHandler):
                         'CONTENT_TYPE':self.headers['Content-Type'],
                 })
                 loginTime = False
+                login.expired()
                 print ("Logging out. ")
+                
                 self.send_response(200)
+                self.send_header('Set-Cookie', login.cl)
+                self.send_header('Content-type', "text/html")
                 self.end_headers()
+                
                 f = open(curdir + sep + "index.html")
                 #print "Other: " +self.path
                 self.wfile.write(f.read())
@@ -485,6 +489,7 @@ class cookie():
     def get(self):
         """docstring for get"""
         print ("Get")
+        
         if 'HTTP_COOKIE' in os.environ:
             print ("Cookies!")
             cookie_string=os.environ.get('HTTP_COOKIE')
@@ -499,11 +504,22 @@ class cookie():
                 print "The cookie was not set or has expired<br>"
                 self.accepted = False
         else:
+            print ("The mouse ate the cookies")
             self.accepted = False
-        
-        #return self.accepted
+            
+    def expired(self):
+        """docstring for expired"""
+        print ("Logging Out")
+        #print loginName
+        c = Cookie.SimpleCookie()
+    
+        c['login'] = ''
+        c['login']['expires'] = 'Thu, 01 Jan 1970 00:00:00 GMT'
+    
+        print (c)
+        self.cl = c.output(header='')
                   
-        
+
 
 env = Environment(on_switch)
 env.discover(seconds=3)
