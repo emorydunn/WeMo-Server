@@ -12,7 +12,8 @@ import cgi
 import os, urlparse, time
 from ouimeaux.environment import Environment
 from static import static
-import csv, decrypt
+import csv
+from yubikey import decrypt
 
 os.system('clear')
 #import web_auth
