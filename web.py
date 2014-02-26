@@ -11,7 +11,7 @@ from ouimeaux.environment import Environment
 from static import static
 import csv
 from yubikey import decrypt
-import Cookie
+import Cookie, requests
 
 os.system('clear')
 #import web_auth
@@ -387,7 +387,17 @@ class myHandler(BaseHTTPRequestHandler):
                 
                 print "Calling get"
                 try:
+                    
+                    
+                    #self.send_response(200)
+                    #self.send_header('Cookie', 'login=hi')
+                    #self.read_header('Content-type', "text/html")
+                    #self.end_headers()
+                    
+                    
+                    
                     login.get()
+                    
                     print ("Got")
                 except:
                     print ("Failed")
@@ -457,7 +467,7 @@ class aliases(): #Load the shortcuts into a dict
                     #assert wemo[first] == rest
 
 #Timer called anytime the validity of the login needs to be checked. 
-#loginTime set when a valid key in input. 
+#loginTime set when a valid key is input. 
 class timer():
     def __init__(self):
         global accepted
@@ -486,6 +496,9 @@ class cookie():
         print (self.c)
         self.ch = self.c.output(header='')
         
+        #opener = urllib2.Request('http://emorys-macbook-pro.local:9090')
+        #opener.add_headers.append(('Set-Cookie', self.c))
+        
     def get(self):
         """docstring for get"""
         print ("Get")
@@ -503,9 +516,9 @@ class cookie():
             except KeyError:
                 print "The cookie was not set or has expired<br>"
                 self.accepted = False
-        else:
-            print ("The mouse ate the cookies")
-            self.accepted = False
+        #else:
+            #print ("The mouse ate the cookies")
+            #self.accepted = False
             
     def expired(self):
         """docstring for expired"""
